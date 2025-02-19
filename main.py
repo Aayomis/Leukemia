@@ -4,10 +4,22 @@ import numpy as np
 from io import BytesIO
 from PIL import Image
 import tensorflow as tf
+import gdown
+import os
 
 app = FastAPI()
 
-model_prod = tf.keras.models.load_model("/Users/apple/Downloads/Leukemia_project/any/1/leukemia_new.h5")
+
+MODEL_URL = "https://drive.google.com/file/d/1C8FdGW2qV4A6sej8b9CNTkeYkfciNTUf"
+MODEL_PATH = "leukemia_new.h5"
+
+# Download the model if not already downloaded
+if not os.path.exists(MODEL_PATH):
+    print("Downloading model...")
+    gdown.download(MODEL_URL, MODEL_PATH, quiet=False, use_cookies=False)
+
+# Load the model
+model_prod = tf.keras.models.load_model(MODEL_PATH)
 
 CLASSNAMES = ['healthy blood smear', 'leukemia blood smear']
 
