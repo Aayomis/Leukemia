@@ -10,16 +10,26 @@ import os
 app = FastAPI()
 
 
-MODEL_URL = "https://drive.google.com/file/d/1C8FdGW2qV4A6sej8b9CNTkeYkfciNTUf"
+
+# ✅ Correct Google Drive link format (change 'file/d/ID/view' to 'uc?id=ID')
+MODEL_URL = "https://drive.google.com/uc?id=1C8FdGW2qV4A6sej8b9CNTkeYkfciNTUf"
 MODEL_PATH = "leukemia_new.h5"
 
-# Download the model if not already downloaded
-if not os.path.exists(MODEL_PATH):
-    print("Downloading model...")
-    gdown.download(MODEL_URL, MODEL_PATH, quiet=False, use_cookies=False)
+# Function to verify if the file exists and has a valid size
+def is_valid_file(filepath, min_size_kb=100):  # 100 KB threshold to check if download was successful
+    return os.path.exists(filepath) and os.path.getsize(filepath) > (min_size_kb * 1024)
 
-# Load the model
-model_prod = tf.keras.models.load_model(MODEL_PATH)
+# ✅ Check if model is already downloaded
+if not is_valid_file(MODEL_PATH):
+    print("Downloading model...")
+    gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
+
+# ✅ Recheck file integrity before loading
+if is_valid_file(MODEL_PATH):
+    print("Loading model...")
+    model_prod = tf.keras.models.load_model(MODEL_PATH)
+else:
+    raise RuntimeError("Model file is missing or corrupted. Download failed.")
 
 CLASSNAMES = ['healthy blood smear', 'leukemia blood smear']
 
